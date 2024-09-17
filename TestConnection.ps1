@@ -1,11 +1,11 @@
-﻿$userInput = Read-Host "Please select an option and press enter:`n[1] Single Host`n[2] Multiple Hosts (.csv format)`n[3] Multiple Hosts (manual input)"  
+$userInput = Read-Host "Please select an option and press enter:`n[1] Manual Input`n[2] .csv Input"  
 $compList = @()
 
 $outputFilePath = "C:\Temp\ConnectionTest.csv"
 
-function CreateOutputFile([string]$outputFileName) {
-    If(!(Test-Path $outputFileName)){
-        New-Item -path $fileOutput
+function CreateOutputFile([string]$outputFilePath) {
+    If(!(Test-Path $outputFilePath)){
+        New-Item -path $outputFilePath | Out-Null
     }
 }
 
@@ -40,7 +40,7 @@ class ComputerObject {
     }
 }
 
-function SingleHost {
+<#function SingleHost {
     CreateOutputFile $outputFilePath
     IsOutputFileWritable
     $userInput = Read-Host "`nPlease enter the hostname or IP address: "
@@ -52,11 +52,12 @@ function SingleHost {
     start $outputFilePath
     Write-Host("Evaluation Completed: " + $comp)
 }
+#>
 
-function MultiHostManual {
+function ManualInput {
     CreateOutputFile $outputFilePath
     IsOutputFileWritable
-    $userInput = Read-Host("`nPlease input ALL computers you would like to check, delimited with a comma.`nEX: computer1a,computer2b,computer3c")
+    $userInput = Read-Host("`nPlease input ALL computer hostnames or IPs. If you are attempting to check multiple clients, separate each with a comma, then press Enter.`nEX: computer1a,computer2b,computer3c")
     $computerArray = $userInput.Split(',')
     $compArray = $userInput.Split(',')
     $compObjArray = @()
@@ -74,7 +75,7 @@ function MultiHostManual {
     start $outputFilePath
 }
 
-function MultiHostCsv {
+function CsvInput {
     CreateOutputFile $outputFilePath
     IsOutputFileWritable 
      Write-Host("`nPlease select the input .csv file")
@@ -106,20 +107,9 @@ function MultiHostCsv {
 #######################
 
 if($userInput -eq 1){
-    SingleHost
-    $userInput = Read-Host("Would you like to evaluate another host? (Y/N)")
-    if ($userInput.ToLower() -eq 'y'){
-        IsOutputFileWritable
-        singleHost
-    } else {
-        Write-Host("Exiting...")
-        exit(0)
-    }
+    ManualInput
 } elseif($userInput -eq 2) {
-    MultiHostCsv
-} elseif($userInput -eq 3){
-    MultiHostManual
-    
+    CsvInput
 } else {
     Write-Host("Please input a valid option")
 }
